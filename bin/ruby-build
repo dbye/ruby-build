@@ -43,6 +43,9 @@ resolve_link() {
   $(type -p greadlink readlink | head -1) "$1"
 }
 
+TAR=$(type -p gtar tar | head -1)
+TAIL=$(type -p gtail tail | head -1)
+
 abs_dirname() {
   local cwd="$(pwd)"
   local path="$1"
@@ -69,7 +72,7 @@ build_failed() {
         echo "Results logged to ${LOG_PATH}"
         echo
         echo "Last 10 log lines:"
-        tail -n 10 "$LOG_PATH"
+        ${TAIL} -n 10 "$LOG_PATH"
       fi
     fi
   } >&3
@@ -131,7 +134,13 @@ make_package() {
 
 compute_md5() {
   if type md5 &>/dev/null; then
-    md5 -q
+    if [ "$(md5 -q)" = "error opening -q" ]
+    then
+      local output="$(md5)"
+      echo "${output%= }"
+    else
+      md5 -q
+    fi
   elif type openssl &>/dev/null; then
     local output="$(openssl md5)"
     echo "${output##* }"
@@ -224,7 +233,7 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-  { tar xzvf "$package_filename"
+  { ${TAR} xzvf "$package_filename"
     rm -f "$package_filename"
   } >&4 2>&1
 }
@@ -612,7 +621,7 @@ fi
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
-  tail -f "$LOG_PATH" &
+  ${TAIL} -f "$LOG_PATH" &
   trap "kill 0" SIGINT SIGTERM EXIT
 fi
 
