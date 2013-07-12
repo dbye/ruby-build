@@ -254,10 +254,6 @@ fetch_tarball() {
     download_tarball "$package_url" "$package_filename" "$checksum"
   }
 
-<<<<<<< HEAD
-  { ${TAR} xzvf "$package_filename"
-    rm -f "$package_filename"
-=======
   { if tar xzvf "$package_filename"; then
       if [ -z "$KEEP_BUILD_PATH" ]; then
         rm -f "$package_filename"
@@ -265,7 +261,6 @@ fetch_tarball() {
         true
       fi
     fi
->>>>>>> 86daa42931d16e01d665a841b05fcf3e7c170229
   } >&4 2>&1
 }
 
@@ -807,14 +802,9 @@ fi
 
 exec 4<> "$LOG_PATH" # open the log file at fd 4
 if [ -n "$VERBOSE" ]; then
-<<<<<<< HEAD
-  ${TAIL} -f "$LOG_PATH" &
-  trap "kill 0" SIGINT SIGTERM EXIT
-=======
   tail -f "$LOG_PATH" &
   TAIL_PID=$!
   trap "kill $TAIL_PID" SIGINT SIGTERM EXIT
->>>>>>> 86daa42931d16e01d665a841b05fcf3e7c170229
 fi
 
 export LDFLAGS="-L'${PREFIX_PATH}/lib' ${LDFLAGS}"
